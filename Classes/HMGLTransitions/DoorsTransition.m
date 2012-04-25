@@ -161,6 +161,8 @@
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         
         glTranslatef(-w, 0, -1);
+        if (transitionType == DoorsTransitionTypeClose)
+            glColor4f(1.0-intensity, 1.0-intensity, 1.0-intensity, 1.0);
         glRotatef(-sah * sah * sah * 90, 0, 1, 0);		
         glTranslatef(w * 0.5, 0, 0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -173,6 +175,8 @@
         glTexCoordPointer(2, GL_FLOAT, 0, texcoords2);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);	 
         glTranslatef(w, 0, -1);
+        if (transitionType == DoorsTransitionTypeClose)
+            glColor4f(1.0-intensity, 1.0-intensity, 1.0-intensity, 1.0);
         glRotatef(sah * sah * sah * 90, 0, 1, 0);		
         glTranslatef(-w * 0.5, 0, 0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
