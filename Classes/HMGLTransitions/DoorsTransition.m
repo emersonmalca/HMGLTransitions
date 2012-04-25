@@ -45,16 +45,28 @@
 	glDisable(GL_LIGHTING);
 	glColor4f(1.0, 1.0, 1.0, 1.0);		
 	
-    animationTime = 0;
+    animationTime = (transitionType == DoorsTransitionTypeOpen)?0:-2*M_PI/3;
 }
 
 - (void)drawWithBeginTexture:(GLuint)beginTexture endTexture:(GLuint)endTexture {
 		
-	if (transitionType == DoorsTransitionTypeClose) {
-		GLuint t = endTexture;
-		endTexture = beginTexture;
-		beginTexture = t;
-	}
+	GLuint outerTexture, innerTexture; GLfloat sah, depth; 
+    switch (transitionType) {
+        case DoorsTransitionTypeOpen:
+            sah = sin(animationTime * 0.5); 
+            innerTexture = endTexture; 
+            outerTexture = beginTexture; 
+            depth = -1.2 + sah * 0.2;
+            break;
+            
+        case DoorsTransitionTypeClose:
+        default:
+            sah = -sin(animationTime * 0.5);
+            innerTexture = beginTexture; 
+            outerTexture = endTexture; 
+            depth = -1.0 + 0.5 * ( (animationTime < - M_PI_2) ? 0.0 : 1/(animationTime-0.25)-1/(-M_PI_2-0.25) ); 
+            break;
+    }
 	
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -117,8 +129,6 @@
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); 
 	
-	GLfloat sah = sin(animationTime * 0.5);
-	
 	GLfloat intensity = sah * sah;
 	
 	// end view
@@ -126,15 +136,19 @@
     glEnableClientState(GL_VERTEX_ARRAY);
     glTexCoordPointer(2, GL_FLOAT, 0, &basicTexCoords);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	
+    
 	glPushMatrix();
-	glBindTexture(GL_TEXTURE_2D, endTexture);
-    glTranslatef(0, 0, -1.2 + sah * 0.2);	
-	glColor4f(intensity, intensity, intensity, 1.0);
+	glBindTexture(GL_TEXTURE_2D, innerTexture);
+    glTranslatef(0, 0, depth);	
+    if (transitionType == DoorsTransitionTypeOpen)
+        glColor4f(intensity, intensity, intensity, 1.0);
+    else 
+        glColor4f(1.0, 1.0, 1.0, 1.0);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);	
 	glPopMatrix();	
-	
-	glColor4f(1.0 - intensity, 1.0 - intensity, 1.0 - intensity, 1.0);
+    
+    if (transitionType == DoorsTransitionTypeOpen)
+        glColor4f(1.0 - intensity, 1.0 - intensity, 1.0 - intensity, 1.0);
 	
 	if (_transitionOrientation == DoorsTransitionOrientationVertical) {
         
@@ -166,27 +180,31 @@
     
     } else {
         
-        //top
+        //bottom
         glPushMatrix();
-        glBindTexture(GL_TEXTURE_2D, beginTexture);		
+        glBindTexture(GL_TEXTURE_2D, outerTexture);		
         glVertexPointer(2, GL_FLOAT, 0, verticesHalfHorizontal);
         glEnableClientState(GL_VERTEX_ARRAY);	
         glTexCoordPointer(2, GL_FLOAT, 0, texcoordsHorizontal1);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         
         glTranslatef(0, -h, -1);
+        if (transitionType == DoorsTransitionTypeClose)
+            glColor4f(1.0-intensity, 1.0-intensity, 1.0-intensity, 1.0);
         glRotatef(sah * sah * sah * 90, 1, 0, 0);		
         glTranslatef(0, h * 0.5, 0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glPopMatrix();
         
-        // bottom
+        //top
         glPushMatrix();	
         glVertexPointer(2, GL_FLOAT, 0, verticesHalfHorizontal);
         glEnableClientState(GL_VERTEX_ARRAY);		
         glTexCoordPointer(2, GL_FLOAT, 0, texcoordsHorizontal2);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);	 
         glTranslatef(0, h, -1);
+        if (transitionType == DoorsTransitionTypeClose)
+            glColor4f(1.0-intensity, 1.0-intensity, 1.0-intensity, 1.0);
         glRotatef(-sah * sah * sah * 90, 1, 0, 0);		
         glTranslatef(0, -h * 0.5, 0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -197,10 +215,11 @@
 
 - (BOOL)calc:(NSTimeInterval)frameTime {
 	
-	animationTime += M_PI * frameTime * 1.3;
+	animationTime += M_PI * frameTime * ((transitionType == DoorsTransitionTypeOpen)?1.3:0.8);
+    GLfloat endAnimationTime = (transitionType == DoorsTransitionTypeOpen)?M_PI:0; 
 	
-	if (animationTime > M_PI) {
-		animationTime = M_PI;
+	if (animationTime > endAnimationTime) {
+		animationTime = endAnimationTime;
 		return YES;
 	}
     

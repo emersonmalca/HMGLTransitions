@@ -96,7 +96,9 @@
 - (void)switchToView2 {
 	
 	UIView *containerView = view1.superview;
-
+    if ([transition isKindOfClass:[DoorsTransition class]]) {
+        [(DoorsTransition*)transition setTransitionType:DoorsTransitionTypeOpen];
+    }
 	[[HMGLTransitionManager sharedTransitionManager] setTransition:transition];	
 	[[HMGLTransitionManager sharedTransitionManager] beginTransition:containerView];
 	
@@ -111,7 +113,9 @@
 - (void)switchToView1 {
 	
 	UIView *containerView = view2.superview;	
-
+    if ([transition isKindOfClass:[DoorsTransition class]]) {
+        [(DoorsTransition*)transition setTransitionType:DoorsTransitionTypeClose];
+    }
 	// Set transition
 	[[HMGLTransitionManager sharedTransitionManager] setTransition:transition];	
 	[[HMGLTransitionManager sharedTransitionManager] beginTransition:containerView];
@@ -131,6 +135,7 @@
 
 	[[HMGLTransitionManager sharedTransitionManager] setTransition:transition];		
 	[[HMGLTransitionManager sharedTransitionManager] dismissModalViewController:modalController];
+
 }
 
 #pragma mark -
