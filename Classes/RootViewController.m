@@ -138,7 +138,7 @@
     }
     
 	[[HMGLTransitionManager sharedTransitionManager] setTransition:transition];		
-	[[HMGLTransitionManager sharedTransitionManager] dismissModalViewController:modalController];
+	[[HMGLTransitionManager sharedTransitionManager] dismissModalViewController:modalController completion:NULL];
 
 }
 
@@ -172,7 +172,7 @@
 	}
 	newController.delegate = self;
 	
-	[[HMGLTransitionManager sharedTransitionManager] presentModalViewController:newController onViewController:self];
+	[[HMGLTransitionManager sharedTransitionManager] presentModalViewController:newController onViewController:self completion:NULL];
 	
 	[newController release];
 }

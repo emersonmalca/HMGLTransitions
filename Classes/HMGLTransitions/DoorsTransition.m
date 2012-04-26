@@ -30,7 +30,7 @@
 	if (self = [super init]) {
 		transitionType = DoorsTransitionTypeOpen;
         _transitionOrientation = DoorsTransitionOrientationHorizontal;
-        _leftBottomWeight = 0.6;
+        _leftBottomWeight = 0.5;
 	}
 	return self;
 }
