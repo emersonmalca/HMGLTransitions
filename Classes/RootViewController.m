@@ -132,7 +132,11 @@
 #pragma mark -
 #pragma mark ModalController delegate
 - (void)modalControllerDidFinish:(ModalViewController *)modalController {
-
+    	
+    if ([transition isKindOfClass:[DoorsTransition class]]) {
+        [(DoorsTransition*)transition setTransitionType:DoorsTransitionTypeClose];
+    }
+    
 	[[HMGLTransitionManager sharedTransitionManager] setTransition:transition];		
 	[[HMGLTransitionManager sharedTransitionManager] dismissModalViewController:modalController];
 
@@ -154,6 +158,9 @@
 
 - (IBAction)modalPresentationButtonPressed:(id)sender {
 	
+    if ([transition isKindOfClass:[DoorsTransition class]]) {
+        [(DoorsTransition*)transition setTransitionType:DoorsTransitionTypeOpen];
+    }
 	[[HMGLTransitionManager sharedTransitionManager] setTransition:transition];	
 	
 	ModalViewController *newController;
