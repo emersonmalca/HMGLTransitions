@@ -30,6 +30,8 @@ typedef enum {
 }
 HMGLTransitionType;
 
+typedef void (^CompletionBlock)();
+
 @interface HMGLTransitionManager : NSObject <HMGLTransitionViewDelegate> {
 
 	HMGLTransitionView *transitionView;
@@ -58,7 +60,7 @@ HMGLTransitionType;
 - (void)commitTransition;
 
 // UIViewController transitions
-- (void)presentModalViewController:(UIViewController*)modalViewController onViewController:(UIViewController*)viewController;
-- (void)dismissModalViewController:(UIViewController*)modalViewController;
+- (void)presentModalViewController:(UIViewController*)modalViewController onViewController:(UIViewController*)viewController completion:(void (^)(void))completion;
+- (void)dismissModalViewController:(UIViewController*)modalViewController completion:(void (^)(void))completion;
 
 @end

@@ -24,11 +24,13 @@
 
 @synthesize transitionType;
 @synthesize transitionOrientation=_transitionOrientation;
+@synthesize leftBottomWeight=_leftBottomWeight;
 
 - (id)init {
 	if (self = [super init]) {
 		transitionType = DoorsTransitionTypeOpen;
         _transitionOrientation = DoorsTransitionOrientationHorizontal;
+        _leftBottomWeight = 0.6;
 	}
 	return self;
 }
@@ -80,45 +82,60 @@
         -w,  h,
 		w,  h,
     };
-    	
-	GLfloat verticesHalf[] = {
-        -w * 0.5 , -h,
-		w * 0.5, -h,
-        -w * 0.5,  h,
-		w * 0.5,  h,
+    
+    Float32 rightTopWeight = 1.0 - _leftBottomWeight;
+	GLfloat verticesHalf1[] = {
+        -w * _leftBottomWeight, -h,
+		w * _leftBottomWeight, -h,
+        -w * _leftBottomWeight,  h,
+		w * _leftBottomWeight,  h,
     };
     
-    GLfloat verticesHalfHorizontal[] = {
-        -w , -h* 0.5,
-		w , -h* 0.5,
-        -w ,  h* 0.5,
-		w ,  h* 0.5,
+	GLfloat verticesHalf2[] = {
+        -w * rightTopWeight, -h,
+		w * rightTopWeight, -h,
+        -w * rightTopWeight,  h,
+		w * rightTopWeight,  h,
+    };
+    
+    GLfloat verticesHalfHorizontal1[] = {
+        -w , -h* _leftBottomWeight,
+		w , -h* _leftBottomWeight,
+        -w ,  h* _leftBottomWeight,
+		w ,  h* _leftBottomWeight,
+    };
+    
+    GLfloat verticesHalfHorizontal2[] = {
+        -w , -h* rightTopWeight,
+		w , -h* rightTopWeight,
+        -w ,  h* rightTopWeight,
+		w ,  h* rightTopWeight,
     };
     
     GLfloat texcoords1[] = {
 		basicTexCoords.x0, basicTexCoords.y0,
-		(basicTexCoords.x1 + basicTexCoords.x0) * 0.5, (basicTexCoords.y1 + basicTexCoords.y0) * 0.5,
+		(basicTexCoords.x1 + basicTexCoords.x0) * _leftBottomWeight, (basicTexCoords.y1 + basicTexCoords.y0) * 0.5,
 		basicTexCoords.x2, basicTexCoords.y2,
-		(basicTexCoords.x3 + basicTexCoords.x2) * 0.5, (basicTexCoords.y2 + basicTexCoords.y3) * 0.5,	
+		(basicTexCoords.x3 + basicTexCoords.x2) * _leftBottomWeight, (basicTexCoords.y2 + basicTexCoords.y3) * 0.5,	
     };
 	
     GLfloat texcoords2[] = {
-		(basicTexCoords.x1 + basicTexCoords.x0) * 0.5, (basicTexCoords.y1 + basicTexCoords.y0) * 0.5,
+		(basicTexCoords.x1 + basicTexCoords.x0) * _leftBottomWeight, (basicTexCoords.y1 + basicTexCoords.y0) * 0.5,
 		basicTexCoords.x1, basicTexCoords.y1,
-		(basicTexCoords.x3 + basicTexCoords.x2) * 0.5, (basicTexCoords.y2 + basicTexCoords.y3) * 0.5,
+		(basicTexCoords.x3 + basicTexCoords.x2) * _leftBottomWeight, (basicTexCoords.y2 + basicTexCoords.y3) * 0.5,
 		basicTexCoords.x3, basicTexCoords.y3,	
     };
      
     GLfloat texcoordsHorizontal1[] = {
 		basicTexCoords.x0, basicTexCoords.y0,
 		basicTexCoords.x1, basicTexCoords.y1,
-		(basicTexCoords.x2 + basicTexCoords.x0) * 0.5, (basicTexCoords.y2 + basicTexCoords.y0) * 0.5,
-		(basicTexCoords.x3 + basicTexCoords.x1) * 0.5, (basicTexCoords.y2 + basicTexCoords.y1) * 0.5,	
+		(basicTexCoords.x2 + basicTexCoords.x0) * 0.5, (basicTexCoords.y2 + basicTexCoords.y0) * _leftBottomWeight,
+		(basicTexCoords.x3 + basicTexCoords.x1) * 0.5, (basicTexCoords.y2 + basicTexCoords.y1) * _leftBottomWeight,	
     };
 	
     GLfloat texcoordsHorizontal2[] = {
-		(basicTexCoords.x2 + basicTexCoords.x0) * 0.5, (basicTexCoords.y2 + basicTexCoords.y0) * 0.5,
-		(basicTexCoords.x3 + basicTexCoords.x1) * 0.5, (basicTexCoords.y2 + basicTexCoords.y1) * 0.5,
+		(basicTexCoords.x2 + basicTexCoords.x0) * 0.5, (basicTexCoords.y2 + basicTexCoords.y0) * _leftBottomWeight,
+		(basicTexCoords.x3 + basicTexCoords.x1) * 0.5, (basicTexCoords.y2 + basicTexCoords.y1) * _leftBottomWeight,
 		basicTexCoords.x2, basicTexCoords.y2,
 		basicTexCoords.x3, basicTexCoords.y3,	
     };
@@ -155,7 +172,7 @@
         // left	
         glPushMatrix();
         glBindTexture(GL_TEXTURE_2D, beginTexture);		
-        glVertexPointer(2, GL_FLOAT, 0, verticesHalf);
+        glVertexPointer(2, GL_FLOAT, 0, verticesHalf1);
         glEnableClientState(GL_VERTEX_ARRAY);	
         glTexCoordPointer(2, GL_FLOAT, 0, texcoords1);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -164,13 +181,13 @@
         if (transitionType == DoorsTransitionTypeClose)
             glColor4f(1.0-intensity, 1.0-intensity, 1.0-intensity, 1.0);
         glRotatef(-sah * sah * sah * 90, 0, 1, 0);		
-        glTranslatef(w * 0.5, 0, 0);
+        glTranslatef(w * _leftBottomWeight, 0, 0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glPopMatrix();
         
         // right
         glPushMatrix();	
-        glVertexPointer(2, GL_FLOAT, 0, verticesHalf);
+        glVertexPointer(2, GL_FLOAT, 0, verticesHalf2);
         glEnableClientState(GL_VERTEX_ARRAY);		
         glTexCoordPointer(2, GL_FLOAT, 0, texcoords2);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);	 
@@ -178,7 +195,7 @@
         if (transitionType == DoorsTransitionTypeClose)
             glColor4f(1.0-intensity, 1.0-intensity, 1.0-intensity, 1.0);
         glRotatef(sah * sah * sah * 90, 0, 1, 0);		
-        glTranslatef(-w * 0.5, 0, 0);
+        glTranslatef(-w * rightTopWeight, 0, 0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glPopMatrix();
     
@@ -187,7 +204,7 @@
         //bottom
         glPushMatrix();
         glBindTexture(GL_TEXTURE_2D, outerTexture);		
-        glVertexPointer(2, GL_FLOAT, 0, verticesHalfHorizontal);
+        glVertexPointer(2, GL_FLOAT, 0, verticesHalfHorizontal1);
         glEnableClientState(GL_VERTEX_ARRAY);	
         glTexCoordPointer(2, GL_FLOAT, 0, texcoordsHorizontal1);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -196,13 +213,13 @@
         if (transitionType == DoorsTransitionTypeClose)
             glColor4f(1.0-intensity, 1.0-intensity, 1.0-intensity, 1.0);
         glRotatef(sah * sah * sah * 90, 1, 0, 0);		
-        glTranslatef(0, h * 0.5, 0);
+        glTranslatef(0, h * _leftBottomWeight, 0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glPopMatrix();
         
         //top
         glPushMatrix();	
-        glVertexPointer(2, GL_FLOAT, 0, verticesHalfHorizontal);
+        glVertexPointer(2, GL_FLOAT, 0, verticesHalfHorizontal2);
         glEnableClientState(GL_VERTEX_ARRAY);		
         glTexCoordPointer(2, GL_FLOAT, 0, texcoordsHorizontal2);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);	 
@@ -210,7 +227,7 @@
         if (transitionType == DoorsTransitionTypeClose)
             glColor4f(1.0-intensity, 1.0-intensity, 1.0-intensity, 1.0);
         glRotatef(-sah * sah * sah * 90, 1, 0, 0);		
-        glTranslatef(0, -h * 0.5, 0);
+        glTranslatef(0, -h * rightTopWeight, 0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glPopMatrix();
         

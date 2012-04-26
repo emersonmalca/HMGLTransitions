@@ -27,6 +27,7 @@
 
 @property (nonatomic, retain) UIViewController *oldController;
 @property (nonatomic, retain) UIViewController *currentController;
+@property (nonatomic, copy) CompletionBlock completionBlock;
 
 @end
 
@@ -38,6 +39,7 @@
 
 @synthesize oldController;
 @synthesize currentController;
+@synthesize completionBlock=_completionBlock;
 
 #pragma mark -
 #pragma mark Singleton
@@ -169,16 +171,17 @@ static HMGLTransitionManager *sharedTransitionManager = nil;
 	[transitionView startAnimation];	
 }
 
-- (void)presentModalViewController:(UIViewController*)modalViewController onViewController:(UIViewController*)viewController {
-
+- (void)presentModalViewController:(UIViewController*)modalViewController onViewController:(UIViewController*)viewController completion:(void (^)(void))completion {
+    
 	transitionType = HMGLTransitionTypeControllerPresentation;
 	self.oldController = viewController;
 	self.currentController = modalViewController;
+    self.completionBlock = completion;
 	[self switchViewControllers];
 }
 
-- (void)dismissModalViewController:(UIViewController*)modalViewController {
-
+- (void)dismissModalViewController:(UIViewController*)modalViewController completion:(void (^)(void))completion {
+    
 	transitionType = HMGLTransitionTypeControllerDismission;
 	self.oldController = modalViewController;
 	if ([modalViewController respondsToSelector:@selector(presentingViewController)]) {
@@ -187,6 +190,7 @@ static HMGLTransitionManager *sharedTransitionManager = nil;
     else {
         self.currentController = modalViewController.parentViewController;
     }
+    self.completionBlock = completion;
 	[self switchViewControllers];
 }
 
@@ -198,13 +202,24 @@ static HMGLTransitionManager *sharedTransitionManager = nil;
 	
 	// view controllers
 	if (transitionType == HMGLTransitionTypeControllerPresentation) {
-        [oldController presentViewController:currentController animated:NO completion:NULL];
+        if ([oldController respondsToSelector:@selector(presentViewController:animated:completion:)]) {
+            [oldController presentViewController:currentController animated:NO completion:_completionBlock];
+        } else {
+            [oldController presentModalViewController:currentController animated:NO];
+            _completionBlock();
+        }
 	}
 	else if (transitionType == HMGLTransitionTypeControllerDismission) {
-        [oldController dismissViewControllerAnimated:NO completion:NULL];
+        if ([oldController respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]) {
+            [oldController dismissViewControllerAnimated:NO completion:_completionBlock];
+        } else {
+            [oldController dismissModalViewControllerAnimated:NO];
+            _completionBlock();
+        }
 	}	
 	
-	// transition type
+	//Reset
+    self.completionBlock = nil;
 	transitionType = HMGLTransitionTypeNone;
 }
 
@@ -217,7 +232,8 @@ static HMGLTransitionManager *sharedTransitionManager = nil;
 	
 	[oldController release];
 	[currentController release];
-	
+	self.completionBlock = nil;
+    
 	[super dealloc];
 }
 

@@ -40,4 +40,5 @@ typedef enum {
 
 @property (nonatomic, assign) DoorsTransitionType transitionType;
 @property (nonatomic, assign) DoorsTransitionOrientation transitionOrientation;
+@property (nonatomic, assign) Float32 leftBottomWeight;
 @end
